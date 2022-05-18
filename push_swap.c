@@ -6,7 +6,7 @@
 /*   By: fyuzhyk <fyuzhyk@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/15 11:58:42 by fyuzhyk           #+#    #+#             */
-/*   Updated: 2022/05/17 17:42:36 by fyuzhyk          ###   ########.fr       */
+/*   Updated: 2022/05/18 18:13:29 by fyuzhyk          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,50 @@ void	lstadd_back(t_node **lst, t_node *new)
 	new->next = NULL;
 }
 
+int	order_a(t_node *head_a) //checks if a is already in the correct order;
+{
+	int	control;
+	int	count;
+
+	control = 0;
+	count = 0;
+	if (head_a == NULL)
+		return (control);
+	while (head_a->next != NULL)
+	{
+		if((head_a->value) < (head_a->next->value))
+		{
+			head_a = head_a->next;
+			count++;
+		}
+		else
+			return (control);
+	}
+	control = 1;
+	return (control);
+}
+
+int	order_b(t_node *head_b) //checks if a is already in the correct order;
+{
+	int	control;
+	int	count;
+
+	control = 0;
+	count = 0;
+	while (head_b->next != NULL)
+	{
+		if((head_b->value) > (head_b->next->value))
+		{
+			head_b = head_b->next;
+			count++;
+		}
+		else
+			return (control);
+	}
+	control = 1;
+	return (control);
+}
+
 void	rotate(t_node **head)
 {
 	t_node	*new_head;
@@ -115,21 +159,6 @@ void	push_a(t_node **head_a, t_node **head_b)
 {
 	t_node	*tmp;
 
-	tmp = (*head_a)->next;
-	if ((*head_b) == NULL)
-	{
-		(*head_b) = (*head_a);
-		(*head_b)->next = NULL;
-	}
-	else
-		lstadd_front(head_b, *(head_a));
-	(*head_a) = tmp;
-}
-
-void	push_b(t_node **head_a, t_node **head_b)
-{
-	t_node	*tmp;
-
 	tmp = (*head_b)->next;
 	if ((*head_a) == NULL)
 	{
@@ -139,6 +168,21 @@ void	push_b(t_node **head_a, t_node **head_b)
 	else
 		lstadd_front(head_a, *(head_b));
 	(*head_b) = tmp;
+}
+
+void	push_b(t_node **head_a, t_node **head_b)
+{
+	t_node	*tmp;
+
+	tmp = (*head_a)->next;
+	if ((*head_b) == NULL)
+	{
+		(*head_b) = (*head_a);
+		(*head_b)->next = NULL;
+	}
+	else
+		lstadd_front(head_b, *(head_a));
+	(*head_a) = tmp;
 }
 
 void	init_stack(int argc, char **argv, t_node **node)
@@ -220,9 +264,13 @@ int	check_second_last_min(t_node *head, int argc, int min)
 	i = 0;
 	while(i < (argc - 3))
 	{
+		if (head == NULL)
+			return (0) ;
 		head = head->next;
 		i++;
 	}
+	if (head == NULL)
+		return (0);
 	if (head->value == min)
 		return (1);
 	return (0);
@@ -237,6 +285,8 @@ int	check_min_last(t_node *head, int min)
 
 void	check_position_max_a(t_node **head_a, int max, int argc)
 {
+	if ((*head_a) == NULL)
+		return ;
 	if ((*head_a)->value == max) // if top of stack is max;
 	{
 		rotate(head_a);
@@ -248,6 +298,7 @@ void	check_position_max_a(t_node **head_a, int max, int argc)
 		swap(head_a);
 		ft_putstr_fd("sa\n", 1);
 		rotate(head_a);
+		ft_putstr_fd("ra\n", 1);
 		return ;
 	}
 	if (check_second_last_max((*head_a), argc, max)) // if second_last is max;
@@ -278,8 +329,12 @@ void	check_position_min_b(t_node **head_b, int min, int argc)
 		ft_putstr_fd("rb\n", 1);
 		return ;
 	}
+	if ((*head_b)->next == NULL)
+		return ;
 	if ((*head_b)->next->value == min)
 	{
+		if (count_nodes((*head_b)) == 2)
+			return ;
 		swap(head_b);
 		ft_putstr_fd("sb\n", 1);
 		rotate(head_b);
@@ -294,43 +349,59 @@ void	check_position_min_b(t_node **head_b, int min, int argc)
 	}
 }
 
-void	check_position_min_a(t_node **head_a, t_node **head_b, int min)
+void	check_position_min_a(t_node **head_a, t_node **head_b, int min, int argc)
 {
+	if ((*head_a) == NULL)
+		return ;
 	if ((*head_a)->value == min)
 	{
-		push_a(head_a, head_b);
-		ft_putstr_fd("pa\n", 1);
+		push_b(head_a, head_b);
+		ft_putstr_fd("pb\n", 1);
 		return ;
 	}
 	if ((*head_a)->next->value == min)
 	{
 		swap(head_a);
 		ft_putstr_fd("sa\n", 1);
-		push_a(head_a, head_b);
-		ft_putstr_fd("pa\n", 1);
+		push_b(head_a, head_b);
+		ft_putstr_fd("pb\n", 1);
 		return ;
 	}
 	if (lstlast((*head_a))->value == min)
 	{
 		reverse_rotate(head_a);
 		ft_putstr_fd("rra\n", 1);
-		push_a(head_a, head_b);
+		push_b(head_a, head_b);
 	}
+	// if (check_second_last_min((*head_a), argc, min))
+	// {
+	// 	reverse_rotate(head_a);
+	// 	reverse_rotate(head_a);
+	// 	push_b(head_a, head_b);
+	// 	ft_putstr_fd("rra\n", 1);
+	// 	ft_putstr_fd("rra\n", 1);
+	// 	ft_putstr_fd("pb\n", 1);
+	// }
 }
 
 void	check_a(t_node **head_a, t_node **head_b)
 {
+	if ((*head_a) == NULL)
+		return ;
 	if ((*head_a)->value < (*head_a)->next->value) // if first element is smaller;
 	{
-		push_a(head_a, head_b);
-		ft_putstr_fd("pa\n", 1);
+		push_b(head_a, head_b);
+		ft_putstr_fd("pb\n", 1);
 	}
 	else
 	{
 		swap(head_a);
 		ft_putstr_fd("sa\n", 1);
-		push_a(head_a, head_b);
-		ft_putstr_fd("pa\n", 1);
+		if (!order_a((*head_a)))
+		{
+			push_b(head_a, head_b);
+			ft_putstr_fd("pb\n", 1);
+		}
 	}
 }
 
@@ -351,22 +422,22 @@ void	check_b_reverse(t_node **head_a, t_node **head_b)
 {
 	if ((*head_b)->next == NULL)
 	{
-		push_b(head_a, head_b);
-		ft_putstr_fd("pb\n", 1);
+		push_a(head_a, head_b);
+		ft_putstr_fd("pa\n", 1);
 		return ;
 	}
 	if ((*head_b)->value > (*head_b)->next->value) // if first element is bigger;
 	{
-		push_b(head_a, head_b);
-		ft_putstr_fd("pb\n", 1);
+		push_a(head_a, head_b);
+		ft_putstr_fd("pa\n", 1);
 		return ;
 	}
 	else
 	{
 		swap(head_b);
 		ft_putstr_fd("sb\n", 1);
-		push_b(head_a, head_b);
-		ft_putstr_fd("pb\n", 1);
+		push_a(head_a, head_b);
+		ft_putstr_fd("pa\n", 1);
 		return ;
 	}
 }
@@ -387,6 +458,40 @@ void	show_stack(t_node *head_a, t_node *head_b)
 	}
 }
 
+void	check_a_reverse(t_node **head_a)
+{
+	int	counter;
+	int	i;
+	if ((*head_a)->value > (*head_a)->next->value)
+	{
+		swap(head_a);
+		ft_putstr_fd("sa\n", 1);
+	}
+	counter = 0;
+	while (!order_a((*head_a)))
+	{
+		i = 0;
+		while(counter >= i)
+		{
+			rotate(head_a);
+			ft_putstr_fd("ra\n", 1);
+			i++;
+		}
+		swap(head_a);
+		ft_putstr_fd("sa\n", 1);
+		i = 0;
+		while (counter >= i)
+		{
+			reverse_rotate(head_a);
+			ft_putstr_fd("rra\n", 1);
+			i++;
+		}
+		if (order_a(*head_a))
+			return ;
+		counter++;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	t_node	*head_a;
@@ -400,74 +505,50 @@ int main(int argc, char **argv)
 	while(1)
 	{
 		check_a(&head_a, &head_b);
-		if (count_nodes(head_a) == 2)
+		if (order_a(head_a))
 			break;
 		check_b(&head_a, &head_b);
-		if (count_nodes(head_a) == 2)
+		if (order_a(head_a))
 			break;
 		check_position_max_a(&head_a, max, argc);
-		if (count_nodes(head_a) == 2)
+		if (order_a(head_a))
 			break;
-		check_position_min_a(&head_a, &head_b, min);
-		show_stack(head_a, head_b);
-		if (count_nodes(head_a) == 2)
+		check_position_min_a(&head_a, &head_b, min, argc);
+		if (order_a(head_a))
 			break;
 		check_position_max_b(&head_b, max, argc);
-		if (count_nodes(head_a) == 2)
+		if (order_a(head_a))
 			break;
 		check_position_min_b(&head_b, min, argc);
-		if (count_nodes(head_a) == 2)
+		if (order_a(head_a))
 			break;
 	}
-	// printf("\n--------\n");
+	// printf("--------\n");
 	// show_stack(head_a, head_b);
-	// printf("\n--------\n");
+	// printf("--------\n");
 	// printf("start of second the second part:\n");
-	// while (1)
-	// {
-	// 	check_b_reverse(&head_a, &head_b);
-	// 	if (count_nodes(head_b) == 0)
-	// 		break ;
-	// 	check_position_max_a(&head_a, max, argc);
-	// 	if (count_nodes(head_b) == 0)
-	// 		break ;
-	// 	check_position_min_a(&head_a, &head_b, min);
-	// 	if (count_nodes(head_b) == 0)
-	// 		break ;
-	// 	check_position_max_b(&head_b, max, argc);
-	// 	if (count_nodes(head_b) == 0)
-	// 		break ;
-	// 	check_position_min_b(&head_b, min, argc);
-	// 	if (count_nodes(head_b) == 0)
-	// 		break ;
-	// }
-	// printf("\n--------\n");
-	// show_stack(head_a, head_b);
-	// printf("\n--------\n");
-	// check_a(&head_a, &head_b);
-	// check_b_reverse(&head_a, &head_b);
-	// check_position_max_a(&head_a, max, argc);
-	// check_position_min_a(&head_a, &head_b, min);
-	// check_position_max_b(&head_b, max, argc);
-	// check_position_min_b(&head_b, min, argc);
-	// check_b_reverse(&head_a, &head_b);
-	// check_position_max_a(&head_a, max, argc);
-	// check_position_min_a(&head_a, &head_b, min);
-	// check_position_max_b(&head_b, max, argc);
-	// check_position_min_b(&head_b, min, argc);
-	// check_b(&head_a, &head_b);
-	// check_position_max_a(&head_a, max, argc);
-	// check_position_min_a(&head_a, &head_b, min);
-	// check_position_max_b(&head_b, max, argc);
-	// check_position_min_b(&head_b, min, argc);
-	// check_position_min_b(&head_b, min, argc);
-	// check_position_min(&head_a, &head_b, min);
-	// check_position_max(&head_a, max, argc);
-	// push_a(&head_a, &head_b);
-	// push_b(&head_a, &head_b);
-	// rotate(&head);
-	// reverse_rotate(&head);
-	// swap(&head);
+	while (1)
+	{
+		check_a_reverse(&head_a);
+		if (count_nodes(head_b) == 0)
+			break ;
+		check_b_reverse(&head_a, &head_b);
+		if (count_nodes(head_b) == 0)
+			break ;
+		// if (count_nodes(head_b) == 0)
+		// 	break ;
+		// check_position_min_a(&head_a, &head_b, min, argc);
+		// if (count_nodes(head_b) == 0)
+		// 	break ;
+		// check_position_max_b(&head_b, max, argc);
+		// if (count_nodes(head_b) == 0)
+		// 	break ;
+		// check_position_min_b(&head_b, min, argc);
+		// if (count_nodes(head_b) == 0)
+		// 	break ;
+	}
+	printf("\n");
+	show_stack(head_a, head_b);
 	// printf("Here comes stack a\n");
 	// while (head_a != NULL)
 	// {
@@ -482,29 +563,3 @@ int main(int argc, char **argv)
 	// }
 	return (0);
 }
-
-/*
-	pre-sorting:
-	1) Store the max value
-	2) Store the min value
-	sorting:
-	1) Check if the smallest/largest int is on top/bottom of stack a; (actually do this every time a change occurs on both stacks!);
-	--> If smallest = first, push to b;
-	--> If smallest = second, swap with first and push to b;
-	--> If smallest = last, reverse rotate and push to b;
-	--> If biggest = first, push list one up (biggest becomes last element);
-	--> If biggest = second, swap and then push one up;
-	--> If biggest = second_last, push list one down;
-	2) Compare first to elements. Put the smaller one to the top, and push to b;
-	3) Compare b's elements, put the biggest always to the top;
-	4) If there are only 2 elements left in stack a, "reverse" the sorting flow from b to a;
-	but still do all the operations.
-	So I need to check the amount of nodes in stack a after every operation;
-	Also if 2 conditions are true at the same time, we need to call both functions!; (I will implement this later on);
-	Terminate the operation if head_a == NULL;
-	Implement the function which compares the first two elements of a, puts the smaller one
-	to the top and pushes it to b!
-	Implement the function which compares the first elements of b and puts the bigger one at the top;
-	(maybe in the end it might improve the algo if every element is directly send from b to a);
-	The algo only works if the max amount of integers is 5;
-*/
