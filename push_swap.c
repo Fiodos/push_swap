@@ -6,7 +6,7 @@
 /*   By: fyuzhyk <fyuzhyk@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/15 11:58:42 by fyuzhyk           #+#    #+#             */
-/*   Updated: 2022/05/21 17:28:21 by fyuzhyk          ###   ########.fr       */
+/*   Updated: 2022/05/25 14:57:28 by fyuzhyk          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	lstadd_back(t_node **lst, t_node *new)
 	new->next = NULL;
 }
 
-int	order_a(t_node *head_a) //checks if a is already in the correct order;
+int	order_a(t_node *head_a)
 {
 	int	control;
 	int	count;
@@ -109,18 +109,51 @@ int	order_b(t_node *head_b) //checks if a is already in the correct order;
 	count = 0;
 	if (head_b == NULL)
 		return (control);
+	// while (head_b->next != NULL)
+	// {
+	// 	if((head_b->value) > (head_b->next->value))
+	// 	{
+	// 		head_b = head_b->next;
+	// 		count++;
+	// 	}
+	// 	else
+	// 		return (control);
+	// }
+	// control = 1;
+	// return (control);
 	while (head_b->next != NULL)
 	{
 		if((head_b->value) > (head_b->next->value))
-		{
-			head_b = head_b->next;
 			count++;
-		}
 		else
-			return (control);
+			break ;
+		head_b = head_b->next;
 	}
-	control = 1;
-	return (control);
+	if (count >= 3)
+		return (1);
+	return (0);
+}
+
+int	new_order_a(t_node *head_a)
+{
+	int	control;
+	int	count;
+
+	control = 0;
+	count = 0;
+	if (head_a == NULL)
+		return (control);
+	while (head_a->next != NULL)
+	{
+		if((head_a->value) < (head_a->next->value)) // the right order for a;
+			count++;
+		else
+			break ;
+		head_a = head_a->next;
+	}
+	if (count >= 3)
+		return (1);
+	return (0);
 }
 
 void	rotate(t_node **head)
@@ -378,6 +411,7 @@ void	check_position_min_a(t_node **head_a, t_node **head_b, int min, int argc)
 		reverse_rotate(head_a);
 		ft_putstr_fd("rra\n", 1);
 		push_b(head_a, head_b);
+		ft_putstr_fd("pb\n", 1);
 	}
 }
 
@@ -385,6 +419,12 @@ void	check_a(t_node **head_a, t_node **head_b)
 {
 	if ((*head_a) == NULL)
 		return ;
+	if ((*head_a)->next == NULL)
+	{
+		push_b(head_a, head_b);
+		ft_putstr_fd("pb\n", 1);
+		return ;
+	}
 	if ((*head_a)->value > (*head_a)->next->value)
 	{
 		swap(head_a);
@@ -395,24 +435,21 @@ void	check_a(t_node **head_a, t_node **head_b)
 		reverse_rotate(head_a);
 		ft_putstr_fd("rra\n", 1);
 	}
-	if (!order_a((*head_a)))
-	{
-		push_b(head_a, head_b);
-		ft_putstr_fd("pb\n", 1);
-	}
+	// if (!order_a((*head_a)))
+	// {
+	// 	push_b(head_a, head_b);
+	// 	ft_putstr_fd("pb\n", 1);
+	// }
+	push_b(head_a, head_b);
+	ft_putstr_fd("pb\n", 1);
 }
 
-void	check_b(t_node **head_a, t_node **head_b)
+void	check_b(t_node **head_b)
 {
 	if ((*head_b) == NULL)
 		return ;
 	if ((*head_b)->next == NULL)
 		return ;
-	if ((*head_b)->value < (*head_b)->next->value)
-	{
-		swap(head_b);
-		ft_putstr_fd("sb\n", 1);
-	}
 	if (find_min((*head_b)) == (*head_b)->value)
 	{
 		rotate(head_b);
@@ -425,10 +462,21 @@ void	check_b(t_node **head_a, t_node **head_b)
 		rotate(head_b);
 		ft_putstr_fd("rb\n", 1);
 	}
+	if ((*head_b)->value < (*head_b)->next->value)
+	{
+		swap(head_b);
+		ft_putstr_fd("sb\n", 1);
+	}
 }
 
 void	check_b_reverse(t_node **head_a, t_node **head_b)
 {
+	if ((*head_a) == NULL || (*head_a)->next == NULL)
+	{
+		push_a(head_a, head_b);
+		ft_putstr_fd("pa\n", 1);
+		return ;
+	}
 	if ((*head_b)->next == NULL)
 	{
 		push_a(head_a, head_b);
@@ -462,10 +510,60 @@ void	show_stack(t_node *head_a, t_node *head_b)
 
 void	check_a_reverse(t_node **head_a)
 {
+	if ((*head_a) == NULL)
+		return ;
+	if ((*head_a)->next == NULL)
+		return ;
 	if ((*head_a)->value > (*head_a)->next->value)
 	{
 		swap(head_a);
 		ft_putstr_fd("sa\n", 1);
+	}
+}
+
+void	sort_rotate_b(t_node **head_a, t_node **head_b, int max, int min, int argc)
+{
+	int	i;
+
+	i = 1;
+	while (i < count_nodes((*head_b)))
+	{
+		if ((*head_b)->value < (*head_b)->next->value)
+		{
+			swap(head_b);
+			ft_putstr_fd("sb\n", 1);
+		}
+		rotate(head_b);
+		ft_putstr_fd("rb\n", 1);
+		i++;
+	}
+	if (find_min((*head_b)) == (*head_b)->value)
+	{
+		rotate(head_b);
+		ft_putstr_fd("rb\n", 1);
+	}
+}
+
+void	sort_rotate_a(t_node **head_a, t_node **head_b, int max, int min, int argc)
+{
+	int	i;
+
+	i = 1;
+	while (i < count_nodes((*head_a)))
+	{
+		if ((*head_a)->value > (*head_a)->next->value)
+		{
+			swap(head_a);
+			ft_putstr_fd("sa\n", 1);
+		}
+		rotate(head_a);
+		ft_putstr_fd("ra\n", 1);
+		i++;
+	}
+	if (find_max((*head_a)) == (*head_a)->value)
+	{
+		rotate(head_a);
+		ft_putstr_fd("ra\n", 1);
 	}
 }
 
@@ -479,57 +577,433 @@ int main(int argc, char **argv)
 	init_stack(argc, argv, &head_a);
 	min = find_min(head_a);
 	max = find_max(head_a);
+	int i = 25;
+	int j = 0;
+	int control = 0;
 	while (1)
 	{
 		while (1)
 		{
-			check_position_max_a(&head_a, max, argc);
-			if (order_a(head_a))
-				break;
-			check_position_min_a(&head_a, &head_b, min, argc);
-			if (order_a(head_a))
-				break;
-			check_position_max_b(&head_b, max, argc);
-			if (order_a(head_a))
-				break;
-			check_position_min_b(&head_b, min, argc);
-			if (order_a(head_a))
-				break;
 			check_a(&head_a, &head_b);
-			if (order_a(head_a))
-				break;
-			check_b(&head_a, &head_b);
-			if (order_a(head_a))
-				break;
+			if (count_nodes(head_a) == i)
+				break ;
+			check_b(&head_b);
+			if (count_nodes(head_a) == i)
+				break ;
 		}
-		if (order_a(head_a) && count_nodes(head_b) == 0)
-			break ;
-		// printf("--------\n");
-		// show_stack(head_a, head_b);
-		// printf("--------\n");
-		// printf("start of second the second part:\n");
+		if (order_b(head_b))
+		{
+			i = i - 5;
+			j = j + 5;
+		}
+		if (i == -5) // marks end of the first part;
+		{
+			i = 0;
+			j = 25;
+			while (1)
+			{
+				while (1)
+				{
+					check_a_reverse(&head_a);
+					if (count_nodes(head_b) == j)
+						break ;
+					check_b_reverse(&head_a, &head_b);
+					if (count_nodes(head_b) == j)
+						break ;
+				}
+				if (new_order_a(head_a))
+				{
+					i = i + 5;
+					j = j - 5;
+				}
+				while (1)
+				{
+					check_a(&head_a, &head_b);
+					if (count_nodes(head_a) == i)
+						break ;
+					check_b(&head_b);
+					if (count_nodes(head_a) == i)
+						break ;
+				}
+			}
+		}
 		while (1)
 		{
 			check_a_reverse(&head_a);
-			if (!order_b(head_b))
+			if (count_nodes(head_b) == j)
 				break ;
 			check_b_reverse(&head_a, &head_b);
-			if (!order_b(head_b))
+			if (count_nodes(head_b) == j)
 				break ;
 		}
 		if (order_a(head_a) && count_nodes(head_b) == 0)
 			break ;
-		if (order_a(head_a) && order_b(head_b))
-		{
-			while (1)
-			{
-				push_a(&head_a, &head_b);
-				if (count_nodes(head_b) == 0)
-					break ;
-			}
-			break ;
-		}
+		// sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// // sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// i = 20;
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// i = 15;
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// i = 10;
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// i = 5;
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// }
+		// i = 2;
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// }
+		// sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// i = 25;
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// i = 20;
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// i = 15;
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// i = 10;
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// i = 5;
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// i = 0;
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// }
+		// // sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// i = 2;
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (count_nodes(head_a) == i)
+		// 		break ;
+		// }
+		// i = 0;
+		// // sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == i)
+		// 		break ;
+		// }
+		// sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// if (count_nodes(head_b) == 0 && order_a(head_a))
+		// 	break ;
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (count_nodes(head_a) == 15)
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (count_nodes(head_a) == 15)
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (count_nodes(head_a) == 15)
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (count_nodes(head_a) == 15)
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (count_nodes(head_a) == 15)
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (count_nodes(head_a) == 15)
+		// 		break ;
+		// }
+		// sort_rotate_a(&head_a, &head_b, max, min, argc);
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == 0)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == 0)
+		// 		break ;
+		// }
+		// sort_rotate_b(&head_a, &head_a, max, min, argc);
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (count_nodes(head_a) == 10)
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (count_nodes(head_a) == 10)
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (count_nodes(head_a) == 10)
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (count_nodes(head_a) == 10)
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (count_nodes(head_a) == 10)
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (count_nodes(head_a) == 10)
+		// 		break ;
+		// }
+		// // sort_rotate_b(&head_a, &head_a, max, min, argc);
+		// while (1)
+		// {
+		// 	check_position_max_a(&head_a, max, argc);
+		// 	if (order_a(head_a))
+		// 		break ;
+		// 	check_position_min_a(&head_a, &head_b, min, argc);
+		// 	if (order_a(head_a))
+		// 		break ;
+		// 	check_position_max_b(&head_b, max, argc);
+		// 	if (order_a(head_a))
+		// 		break ;
+		// 	check_position_min_b(&head_b, min, argc);
+		// 	if (order_a(head_a))
+		// 		break ;
+		// 	check_a(&head_a, &head_b);
+		// 	if (order_a(head_a))
+		// 		break ;
+		// 	check_b(&head_b);
+		// 	if (order_a(head_a))
+		// 		break ;
+		// }
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == 15)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == 15)
+		// 		break ;
+		// }
+		// sort_rotate_a(&head_a, &head_a, max, min, argc);
+		// sort_rotate_a(&head_a, &head_a, max, min, argc);
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == 10)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == 10)
+		// 		break ;
+		// }
+		// sort_rotate_a(&head_a, &head_a, max, min, argc);
+		// sort_rotate_a(&head_a, &head_a, max, min, argc);
+		// break ;
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (count_nodes(head_b) == 0)
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (count_nodes(head_b) == 0)
+		// 		break ;
+		// }
+		// if (order_a(head_a))
+		// if (!order_b(head_b))
+		// 	sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// while (1)
+		// {
+		// 	check_a_reverse(&head_a);
+		// 	if (!order_a(head_a) || order_b(head_b))
+		// 		break ;
+		// 	check_b_reverse(&head_a, &head_b);
+		// 	if (!order_a(head_a) || order_b(head_b))
+		// 		break ;
+		// }
+		// if (!order_a(head_a))
+		// 	sort_rotate_b(&head_a, &head_b, max, min, argc);
+		// if (count_nodes(head_b) == 0 || order_a(head_a))
+		// if (count_nodes(head_b) == 0 && order_a(head_a))
+		// 	break ;
 	}
+	// if (order_a(head_a) && order_b(head_b))
+	// {
+	// 	while(head_b)
+	// 	{
+	// 		push_a(&head_a, &head_b);
+	// 		ft_putstr_fd("pa\n", 1);
+	// 	}
+	// }
+	// printf("--------\n");
+	// show_stack(head_a, head_b);
+	// printf("--------\n");
+	// printf("start of second the second part:\n");
+	// while (1)
+	// {
+	// 	check_a_reverse(&head_a);
+	// 	if (count_nodes(head_b) == 0)
+	// 		break ;
+	// 	check_b_reverse(&head_a, &head_b);
+	// 	if (count_nodes(head_b) == 0)
+	// 		break ;
+	// }
 	// printf("\n");
 	// show_stack(head_a, head_b);
 	// printf("Here comes stack a\n");
@@ -547,20 +1021,10 @@ int main(int argc, char **argv)
 	return (0);
 }
 
-// I def need to rewrite my logic from the second part, it takes >6x commands!
-// or rather the first part, because everyhting arrives at stack b like shit
-
 
 /*
-1) Check min and max in a;
-2) Push the smallest to b;
-3) Compare b's elements and swap the smallest to the top;
-4) Check min in b; put it to the bottom(the smallest in the current stack);
-5) Only push head_a to b if head_a > head_b or head_a > head_b->next (push and swap in this case);
-6) If not the case, rotate from top to bottom until head_a > head_b; push; then rotate back until
-b has the right order;
-7) do it until b has the right order;
-8) then simply push to a until b is empty (should be in the correct order anyway);
+spilt the stack;
+swap a part along until it is sorted;
+if it is sorted, let it wait in b;
+then sort the others using the same technique (?)
 */
-
-// break if the order of b is NOT right!;

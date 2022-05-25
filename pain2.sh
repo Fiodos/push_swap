@@ -1,5 +1,5 @@
 #!/bin/bash
-NBR_COUNT=20
+NBR_COUNT=30
 ##
 NBR="1 2"
 RES=OK
