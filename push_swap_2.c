@@ -6,7 +6,7 @@
 /*   By: fyuzhyk <fyuzhyk@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 14:04:38 by fyuzhyk           #+#    #+#             */
-/*   Updated: 2022/06/01 17:34:55 by fyuzhyk          ###   ########.fr       */
+/*   Updated: 2022/06/01 18:23:03 by fyuzhyk          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,7 @@ int	find_max_half(t_node *head)
 
 	max = 0;
 	i = 0;
-	while(i < (count_nodes(head) / 2))
+	while(i < (count_nodes(head) / 20))
 	{
 		if (head->next == NULL)
 			return (max);
@@ -638,7 +638,6 @@ int main(int argc, char **argv)
 
 	init_stack(argc, argv, &head_a);
 	nodes = count_nodes(head_a); // height of stack;
-	// max = find_max(head_a);
 	max = find_max_half(head_a);
 	if (calc_steps(head_a, max))
 	{
@@ -695,19 +694,28 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			if (head_a->next != NULL && head_a != NULL)
+			if (count_nodes(head_a) > 25)
 			{
-				if (head_a->value < head_a->next->value)
+				int max = find_max_half(head_a);
+				while(head_a->value != max)
 				{
-					swap(&head_a);
-					ft_putstr_fd("sa\n", 1);
-				}
-				if (head_a->value < lstlast(head_a)->value)
-				{
-					reverse_rotate(&head_a);
-					ft_putstr_fd("rra\n", 1);
+					rotate(&head_a);
+					ft_putstr_fd("ra\n", 1);
 				}
 			}
+			// if (head_a->next != NULL && head_a != NULL)
+			// {
+			// 	if (head_a->value < head_a->next->value)
+			// 	{
+			// 		swap(&head_a);
+			// 		ft_putstr_fd("sa\n", 1);
+			// 	}
+			// 	if (head_a->value < lstlast(head_a)->value)
+			// 	{
+			// 		reverse_rotate(&head_a);
+			// 		ft_putstr_fd("rra\n", 1);
+			// 	}
+			// }
 			push_b(&head_a, &head_b);
 			ft_putstr_fd("pb\n", 1);
 		}
