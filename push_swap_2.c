@@ -6,7 +6,7 @@
 /*   By: fyuzhyk <fyuzhyk@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 14:04:38 by fyuzhyk           #+#    #+#             */
-/*   Updated: 2022/05/25 16:51:54 by fyuzhyk          ###   ########.fr       */
+/*   Updated: 2022/06/01 17:34:55 by fyuzhyk          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,19 @@ void	init_stack(int argc, char **argv, t_node **node)
 	}
 }
 
+int	count_nodes(t_node *head_a)
+{
+	int	i;
+
+	i = 0;
+	while (head_a != NULL)
+	{
+		head_a = head_a->next;
+		i++;
+	}
+	return (i);
+}
+
 int	find_max(t_node *head)
 {
 	int	max;
@@ -165,6 +178,25 @@ int	find_max(t_node *head)
 		if (head->value > max)
 			max = head->value;
 		head = head->next;
+	}
+	return (max);
+}
+
+int	find_max_half(t_node *head)
+{
+	int	max;
+	int	i;
+
+	max = 0;
+	i = 0;
+	while(i < (count_nodes(head) / 2))
+	{
+		if (head->next == NULL)
+			return (max);
+		if (head->value > max)
+			max = head->value;
+		head = head->next;
+		i++;
 	}
 	return (max);
 }
@@ -183,24 +215,12 @@ int	find_min(t_node *head)
 	return (min);
 }
 
-int	count_nodes(t_node *head_a)
-{
-	int	i;
-
-	i = 0;
-	while (head_a != NULL)
-	{
-		head_a = head_a->next;
-		i++;
-	}
-	return (i);
-}
 
 void	check_a(t_node **head_a, t_node **head_b)
 {
 	if ((*head_a) == NULL)
 		return ;
-	if ((*head_a)->next == NULL)
+	if ((*head_a)->next == NULL || (*head_b) == NULL)
 	{
 		push_b(head_a, head_b);
 		ft_putstr_fd("pb\n", 1);
@@ -238,14 +258,14 @@ void	check_b(t_node **head_b)
 		ft_putstr_fd("sb\n", 1);
 		return ;
 	}
-	if (find_min((*head_b)) == (*head_b)->next->value && (*head_b)->next->next != NULL)
-	{
-		swap(head_b);
-		ft_putstr_fd("sb\n", 1);
-		rotate(head_b);
-		ft_putstr_fd("rb\n", 1);
-		return ;
-	}
+	// if (find_min((*head_b)) == (*head_b)->next->value && (*head_b)->next->next != NULL)
+	// {
+	// 	swap(head_b);
+	// 	ft_putstr_fd("sb\n", 1);
+	// 	rotate(head_b);
+	// 	ft_putstr_fd("rb\n", 1);
+	// 	return ;
+	// }
 }
 
 void	check_b_reverse(t_node **head_a, t_node **head_b)
@@ -391,16 +411,43 @@ int	first_sort_order_a(t_node *head_a, int sub)
 		return (0);
 }
 
-void	first_sort(t_node **head_a, t_node **head_b, int nodes)
+void	compare(t_node **head_a, t_node **head_b)
+{
+	int	i;
+
+	i = 1;
+	if ((*head_b)->next == NULL)
+	{
+		push_b(head_a, head_b);
+		ft_putstr_fd("pb\n", 1);
+		return ;
+	}
+	while (i)
+	{
+		if ((*head_a)->value > (*head_b)->value)
+		{
+			push_b(head_a, head_b);
+			ft_putstr_fd("pb\n", 1);
+			i = 0;
+		}
+		else
+		{
+			rotate(head_b);
+			ft_putstr_fd("rb\n", 1);
+		}
+	}
+}
+
+void	first_sort(t_node **head_a, t_node **head_b, int nodes, int argc)
 {
 	int	a;
 	int	b;
 	int	sub;
 
-	sub = nodes / 4; // substacks;
+	sub = nodes / 2; // substacks;
 	a = nodes - sub;
 	b = 0;
-	while (a != 0)
+	while (a != -100)
 	{
 		while (1)
 		{
@@ -419,10 +466,10 @@ void	first_sort(t_node **head_a, t_node **head_b, int nodes)
 		while (1)
 		{
 			check_a_reverse(head_a);
-			if (count_nodes((*head_b)) == b || order_b((*head_b)))
+			if (count_nodes((*head_b)) == b)
 				break ;
 			check_b_reverse(head_a, head_b);
-			if (count_nodes((*head_b)) == b || order_b((*head_b)))
+			if (count_nodes((*head_b)) == b)
 				break ;
 		}
 	}
@@ -434,10 +481,10 @@ void	second_sort(t_node **head_a, t_node **head_b, int nodes)
 	int	b;
 	int	sub;
 
-	sub = nodes / 5;
+	sub = nodes / 10;
 	a = 0;
 	b = nodes - sub;
-	while (b != -6)
+	while (b != -10)
 	{
 		while (1)
 		{
@@ -467,15 +514,253 @@ void	second_sort(t_node **head_a, t_node **head_b, int nodes)
 	}
 }
 
+
+int	new_check_a(t_node *head_a, t_node *head_b)
+{
+	int	nodes_a;
+	int	i;
+
+	nodes_a = count_nodes(head_a);
+	i = 1;
+	while (i != nodes_a) // checks first occurence of the right number;
+	{
+		if (head_a->next == NULL)
+			return (0);
+		if (head_a->value > head_b->value)
+			return (i);
+		head_a = head_a->next;
+		i++;
+	}
+	return (0);
+}
+
+int	new_check_b(t_node *head_a, t_node *head_b)
+{
+	int	nodes_b;
+	int	i;
+
+	nodes_b = count_nodes(head_b);
+	i = 1;
+	while (i != nodes_b)
+	{
+		if (head_b->next == NULL)
+			return (0);
+		if (head_b->value > head_a->value)
+			return (i);
+		head_b = head_b->next;
+		i++;
+	}
+	return (0);
+}
+
+int	calc_steps(t_node *head_b, int max)
+{
+	int	s;
+	int	nodes;
+
+	s = 0;
+	nodes = count_nodes(head_b) / 2;
+	while (head_b->value != max)
+	{
+		if (head_b->next == NULL)
+			return (1);
+		head_b = head_b->next;
+		s++;
+	}
+	if (s > nodes)
+		return (0); // reverse_rotate instead of rotate then;
+	return (1);
+}
+
+void	sort_b_backwards(t_node **head_a, t_node **head_b)
+{
+	int	max;
+
+	while (count_nodes(*head_b) > 0)
+	{
+		max = find_max(*head_b);
+		if (calc_steps((*head_b), max))
+		{
+			while ((*head_b)->value != max)
+			{
+				rotate(head_b);
+				ft_putstr_fd("rb\n", 1);
+			}
+		}
+		else
+		{
+			while ((*head_b)->value != max)
+			{
+				reverse_rotate(head_b);
+				ft_putstr_fd("rrb\n", 1);
+			}
+		}
+		push_a(head_a, head_b);
+		ft_putstr_fd("pa\n", 1);
+	}
+}
+
+void	sort_a_backwards(t_node **head_a, t_node **head_b)
+{
+	int	max;
+
+	while (count_nodes(*head_a) > 0)
+	{
+		max = find_max(*head_a);
+		if (calc_steps((*head_a), max))
+		{
+			while ((*head_a)->value != max)
+			{
+				rotate(head_a);
+				ft_putstr_fd("ra\n", 1);
+			}
+		}
+		else
+		{
+			while ((*head_a)->value != max)
+			{
+				reverse_rotate(head_a);
+				ft_putstr_fd("rra\n", 1);
+			}
+		}
+		push_b(head_a, head_b);
+		ft_putstr_fd("pb\n", 1);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	t_node	*head_a;
 	t_node	*head_b;
 	int		nodes;
+	int		max;
+	int		cmd;
 
 	init_stack(argc, argv, &head_a);
 	nodes = count_nodes(head_a); // height of stack;
-	first_sort(&head_a, &head_b, nodes);
-	// second_sort(&head_a, &head_b, nodes);
+	// max = find_max(head_a);
+	max = find_max_half(head_a);
+	if (calc_steps(head_a, max))
+	{
+		while (head_a->value != max)
+		{
+			rotate(&head_a);
+			ft_putstr_fd("ra\n", 1);
+		}
+	}
+	else
+	{
+		while (head_a->value != max)
+		{
+			reverse_rotate(&head_a);
+			ft_putstr_fd("rra\n", 1);
+		}
+	}
+	push_b(&head_a, &head_b);
+	ft_putstr_fd("pb\n", 1);
+	while (count_nodes(head_a) > 0)
+	{
+		cmd = new_check_a(head_a, head_b);
+		if (cmd >= 1)
+		{
+			if (cmd > (nodes / 2))
+			{
+				while (head_a->value < head_b->value)
+				{
+					reverse_rotate(&head_a);
+					ft_putstr_fd("rra\n", 1);
+				}
+			}
+			else
+			{
+				while (cmd > 1)
+				{
+					rotate(&head_a);
+					ft_putstr_fd("ra\n", 1);
+					cmd--;
+				}
+			}
+			push_b(&head_a, &head_b);
+			ft_putstr_fd("pb\n", 1);
+			if (head_b->value == find_max(head_b))
+			{
+				rotate(&head_b);
+				ft_putstr_fd("rb\n", 1);
+			}
+			if (head_b->value > head_b->next->value)
+			{
+				swap(&head_b);
+				ft_putstr_fd("sb\n", 1);
+			}
+		}
+		else
+		{
+			if (head_a->next != NULL && head_a != NULL)
+			{
+				if (head_a->value < head_a->next->value)
+				{
+					swap(&head_a);
+					ft_putstr_fd("sa\n", 1);
+				}
+				if (head_a->value < lstlast(head_a)->value)
+				{
+					reverse_rotate(&head_a);
+					ft_putstr_fd("rra\n", 1);
+				}
+			}
+			push_b(&head_a, &head_b);
+			ft_putstr_fd("pb\n", 1);
+		}
+	}
+	sort_b_backwards(&head_a, &head_b);
+	// int i = 0;
+	// int	cmd_2;
+	// push_a(&head_a, &head_b);
+	// ft_putstr_fd("pa\n", 1);
+	// while (count_nodes(head_b) > 0)
+	// {
+	// 	cmd_2 = new_check_b(head_a, head_b);
+	// 	if (cmd_2 >= 1)
+	// 	{
+	// 		if (cmd_2 > (count_nodes(head_b) / 2))
+	// 		{
+	// 			while (cmd_2 > 1)
+	// 			{
+	// 				reverse_rotate(&head_b);
+	// 				ft_putstr_fd("rrb\n", 1);
+	// 				cmd_2--;
+	// 			}
+	// 		}
+	// 		else
+	// 		{
+	// 			while (cmd_2 > 1)
+	// 			{
+	// 				rotate(&head_b);
+	// 				ft_putstr_fd("rb\n", 1);
+	// 				cmd_2--;
+	// 			}
+	// 		}
+	// 		push_a(&head_a, &head_b);
+	// 		ft_putstr_fd("pa\n", 1);
+	// 	}
+	// 	else
+	// 	{
+	// 		push_a(&head_a, &head_b);
+	// 		ft_putstr_fd("pa\n", 1);
+	// 	}
+	// }
+	// while (count_nodes(head_b) != 0)
+	// {
+	// 	push_a(&head_a, &head_b);
+	// 	ft_putstr_fd("pa\n", 1);
+	// 	if (head_a->next != NULL)
+	// 	{
+	// 		if (head_a->value < head_a->next->value)
+	// 		{
+	// 			swap(&head_a);
+	// 			ft_putstr_fd("sa\n", 1);
+	// 		}
+	// 	}
+	// }
 	return (0);
 }
