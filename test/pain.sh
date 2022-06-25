@@ -1,10 +1,10 @@
 #!/bin/bash
-NBR_COUNT=100
+NBR_COUNT=5
 ##
 NBR=$(seq 1 $NBR_COUNT | sort -R | tr '\n' ' ' | rev | cut -c 2- | rev)
 #NBR="0 1 2 3 4 5 6 7 8 9"
 #NBR=$(seq 1 $NBR_COUNT | tr '\n' ' ' | rev | cut -c 2- | rev)
-CMD=$( ./push_swap $NBR)
+CMD=$( ../push_swap $NBR)
 NBR_LINK=$( echo "$NBR" | tr ' ' ',' )
 CMD_LINK=$( echo "$CMD" | sed -e"s/rra/g/g" -e"s/rrb/h/g" \
 -e"s/rrr/i/g" -e"s/sa/a/g" -e"s/sb/b/g" -e"s/ss/c/g" \
